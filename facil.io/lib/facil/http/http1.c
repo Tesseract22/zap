@@ -632,6 +632,7 @@ static int http1_on_header(http1_parser_s *parser, char *name, size_t name_len,
     if (parser2http(parser)->p.settings->log) {
       FIO_LOG_WARNING("(HTTP) security alert - header flood detected.");
     }
+    sprintf(stderr, "413 %zu > %zu", parser2http(parser)->header_size , parser2http(parser)->max_header_size);
     http_send_error(&http1_pr2handle(parser2http(parser)), 413);
     return -1;
   }
@@ -648,6 +649,7 @@ static int http1_on_body_chunk(http1_parser_s *parser, char *data,
           (ssize_t)parser2http(parser)->p.settings->max_body_size ||
       parser->state.read >
           (ssize_t)parser2http(parser)->p.settings->max_body_size) {
+    sprintf(stderr, "413 %zu > %lli", parser->state.content_length , (ssize_t)parser2http(parser)->p.settings->max_body_size);
     http_send_error(&http1_pr2handle(parser2http(parser)), 413);
     return -1; /* test every time, in case of chunked data */
   }
